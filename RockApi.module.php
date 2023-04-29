@@ -11,7 +11,7 @@ use RockApi\Response;
  */
 class RockApi extends WireData implements Module
 {
-  public $url;
+  public $url = "";
   private $http;
 
   public static function getModuleInfo()
@@ -32,7 +32,11 @@ class RockApi extends WireData implements Module
    */
   public function get($url): Response
   {
-    return $this->response($this->http()->get($this->url($url)));
+    $url = $this->url($url);
+    $response = $this->response($this->http()->get($url));
+    $response->method = 'GET';
+    $response->url = $url;
+    return $response;
   }
 
   public function http(): WireHttp
