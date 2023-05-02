@@ -27,11 +27,23 @@ class RockApi extends WireData implements Module
   }
 
   /**
-   * You can provide relative urls relative to the base url
-   * Usage: $api->get('/ping');
+   * You can provide urls relative to the base url
+   *
+   * The get() method is a magic method for PW so your $url must start
+   * with either http or with / to indicate that it is an api request
+   *
+   * Usage:
+   * $api->get('/ping');
+   * $api->get('https://...');
    */
-  public function get($url): Response
+  public function get($url)
   {
+    $apiCall = false;
+    if (str_starts_with($url, "/")) $apiCall = true;
+    elseif (str_starts_with($url, "http://")) $apiCall = true;
+    elseif (str_starts_with($url, "https://")) $apiCall = true;
+    if (!$apiCall) return parent::get($url);
+
     $url = $this->url($url);
     $response = $this->response($this->http()->get($url));
     $response->method = 'GET';
@@ -53,7 +65,11 @@ class RockApi extends WireData implements Module
   public function post($url, $data): Response
   {
     if (!is_string($data)) $data = json_encode($data);
-    return $this->response($this->http()->post($this->url($url), $data));
+    $url = $this->url($url);
+    $response = $this->response($this->http()->post($url, $data));
+    $response->url = $url;
+    $response->method = 'POST';
+    return $response;
   }
 
   /**
@@ -78,6 +94,11 @@ class RockApi extends WireData implements Module
     $response->status = $this->http()->getHttpCode();
     $response->result = $object;
     return $response;
+  }
+
+  public function setUrl($url)
+  {
+    $this->url = rtrim($url, "/");
   }
 
   public function __debugInfo()
