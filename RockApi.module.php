@@ -26,6 +26,8 @@ class RockApi extends WireData implements Module
     ];
   }
 
+  /** HTTP methods */
+
   /**
    * You can provide urls relative to the base url
    *
@@ -45,22 +47,15 @@ class RockApi extends WireData implements Module
     if (!$apiCall) return parent::get($url);
 
     $url = $this->url($url);
-    $response = $this->response($this->http()->get($url));
+    $http = $this->http();
+    // this prevents the following error
+    // Raw data option with CURL not supported for GET
+    $http->setData(null);
+    $response = $this->response($http->get($url));
     $response->method = 'GET';
     $response->url = $url;
     return $response;
   }
-
-  public function http(): WireHttp
-  {
-    if ($this->http) return $this->http;
-    /** @var WireHttp $http */
-    $http = $this->wire(new WireHttp());
-    $http->setHeader('Content-Type', 'application/json');
-    $http->setHeader('Accept', 'application/json');
-    return $this->http = $http;
-  }
-
 
   public function post($url, $data): Response
   {
@@ -70,6 +65,41 @@ class RockApi extends WireData implements Module
     $response->url = $url;
     $response->method = 'POST';
     return $response;
+  }
+
+  public function put($url, $data)
+  {
+    $url = $this->url($url);
+    $data = json_encode($data);
+    $response = $this->response(
+      $this->http()->send($url, $data, 'PUT')
+    );
+    $response->url = $url;
+    $response->method = 'PUT';
+    return $response;
+  }
+
+  public function delete($url)
+  {
+    $url = $this->url($url);
+    $response = $this->response($this->http(false)->send($url, [], 'DELETE'));
+    $response->url = $url;
+    $response->method = 'DELETE';
+    return $response;
+  }
+
+  /** END HTTP methods */
+
+  public function http($json = true): WireHttp
+  {
+    if ($this->http) return $this->http;
+    /** @var WireHttp $http */
+    $http = $this->wire(new WireHttp());
+    if ($json) {
+      $http->setHeader('Content-Type', 'application/json');
+      $http->setHeader('Accept', 'application/json');
+    }
+    return $this->http = $http;
   }
 
   /**

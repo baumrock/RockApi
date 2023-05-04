@@ -17,8 +17,16 @@ class Response extends WireData
     $this->http = $http;
   }
 
+  /**
+   * Usage:
+   * $response->hasStatus(200);
+   * $response->hasStatus([200, 201]);
+   */
   public function hasStatus($status): bool
   {
+    if (is_array($status)) {
+      return in_array($this->http->getHttpCode(), $status);
+    }
     return $this->http->getHttpCode() == $status;
   }
 
