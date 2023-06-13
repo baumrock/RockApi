@@ -38,7 +38,7 @@ class RockApi extends WireData implements Module
    * $api->get('/ping');
    * $api->get('https://...');
    */
-  public function get($url)
+  public function get($url): Response
   {
     $apiCall = false;
     if (str_starts_with($url, "/")) $apiCall = true;
@@ -67,7 +67,7 @@ class RockApi extends WireData implements Module
     return $response;
   }
 
-  public function put($url, $data)
+  public function put($url, $data): Response
   {
     $url = $this->url($url);
     $data = json_encode($data);
@@ -79,7 +79,7 @@ class RockApi extends WireData implements Module
     return $response;
   }
 
-  public function delete($url)
+  public function delete($url): Response
   {
     $url = $this->url($url);
     $response = $this->response($this->http(false)->send($url, [], 'DELETE'));
