@@ -38,7 +38,7 @@ class RockApi extends WireData implements Module
    * $api->get('/ping');
    * $api->get('https://...');
    */
-  public function get($url): Response
+  public function get($url): mixed
   {
     $apiCall = false;
     if (str_starts_with($url, "/")) $apiCall = true;
