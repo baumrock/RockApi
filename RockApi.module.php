@@ -13,6 +13,7 @@ class RockApi extends WireData implements Module
 {
   public $url = "";
   private $http;
+  private $headers = [];
 
   public static function getModuleInfo()
   {
@@ -99,6 +100,7 @@ class RockApi extends WireData implements Module
       $http->setHeader('Content-Type', 'application/json');
       $http->setHeader('Accept', 'application/json');
     }
+    foreach ($this->headers as $k => $v) $http->setHeader($k, $v);
     return $this->http = $http;
   }
 
@@ -124,6 +126,11 @@ class RockApi extends WireData implements Module
     $response->status = $this->http()->getHttpCode();
     $response->result = $object;
     return $response;
+  }
+
+  public function setHeaders(array $headers): void
+  {
+    $this->headers = $headers;
   }
 
   public function setUrl($url)
